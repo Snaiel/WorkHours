@@ -16,44 +16,53 @@ def make_table(num_rows, num_cols):
         data[i] = [word(), *[number() for i in range(num_cols - 1)]]
     return data
 
+
+combo = ['PySImpleGUI', 'Nemix']
+
 # ------ Make the Table Data ------
 data = make_table(num_rows=15, num_cols=6)
 headings = ['Start', 'End', 'Total', 'Description']
 
 # ------ Window Layout ------
-layout = [[sg.Table(values=data[1:][:],
+layout = [
+    [sg.Combo(combo, default_value=combo[0], readonly=True, size=(75,1))],
+    [sg.Table(values=data[1:][:],
                     headings=headings,
                     header_background_color='default',
                     def_col_width=100,
-                    col_widths=[15,15,8,30],
+                    col_widths=[15,15,5,25],
                     auto_size_columns=False,
                     # background_color='light blue',
-                    justification='right',
+                    justification='left',
                     num_rows=8,
                     key='-TABLE-',
                     hide_vertical_scroll=False,
-                    row_height=35,
+                    row_height=25,
                     enable_events=True,
                     tooltip='This is a table')],
-          [sg.Button('Read'), sg.Button('Double'), sg.Button('Change Colors')],
-          [sg.Text('Read = read which rows are selected')],
-          [sg.Text('Double = double the amount of data in the table')],
-          [sg.Text('Change Colors = Changes the colors of rows 8 and 9')]]
+    [sg.Button('Start'), sg.Button('Stop')]
+        ]
 
 # ------ Create Window ------
-window = sg.Window('The Table Element', layout, size=(660, 400))
+window = sg.Window('The Table Element', layout, size=(590, 300), finalize=True)
+
+previous_selection = []
 
 # ------ Event Loop ------
 while True:
     event, values = window.read()
     print(event, values)
+
+    print(previous_selection)
+    if values['-TABLE-'] == previous_selection:
+        window['-TABLE-'].update(select_rows=[])
+        previous_selection = values['-TABLE-']
+    else:
+        previous_selection = values['-TABLE-']
+
     if event == sg.WIN_CLOSED:
         break
-    if event == 'Double':
-        for i in range(len(data)):
-            data.append(data[i])
-        window['-TABLE-'].update(values=data)
-    elif event == 'Change Colors':
-        window['-TABLE-'].update(row_colors=((8, 'white', 'red'), (9, 'green')))
+    if event == 'Stop':
+        window['-TABLE-'].update(select_rows=[])
 
 window.close()
