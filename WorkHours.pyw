@@ -53,6 +53,9 @@ while True:
     event, values = window.read()
     print(event, values)
 
+    if event == sg.WIN_CLOSED:
+        break
+
     print(previous_selection)
     if values['-TABLE-'] == previous_selection:
         window['-TABLE-'].update(select_rows=[])
@@ -60,8 +63,6 @@ while True:
     else:
         previous_selection = values['-TABLE-']
 
-    if event == sg.WIN_CLOSED:
-        break
     if event == 'Stop':
         window['-TABLE-'].update(select_rows=[])
 
