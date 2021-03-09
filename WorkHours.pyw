@@ -18,16 +18,16 @@ def make_table(num_rows, num_cols):
 
 # ------ Make the Table Data ------
 data = make_table(num_rows=15, num_cols=6)
-headings = ['Start     ', 'End     ', 'Total', 'Description                         ']
+headings = ['Start', 'End', 'Total', 'Description']
 
 # ------ Window Layout ------
 layout = [[sg.Table(values=data[1:][:],
                     headings=headings,
                     header_background_color='default',
-                    max_col_width=25,
-                    size=(750, 5),
+                    def_col_width=100,
+                    col_widths=[15,15,8,30],
+                    auto_size_columns=False,
                     # background_color='light blue',
-                    auto_size_columns=True,
                     justification='right',
                     num_rows=8,
                     key='-TABLE-',
@@ -41,7 +41,7 @@ layout = [[sg.Table(values=data[1:][:],
           [sg.Text('Change Colors = Changes the colors of rows 8 and 9')]]
 
 # ------ Create Window ------
-window = sg.Window('The Table Element', layout, size=(800, 400))
+window = sg.Window('The Table Element', layout, size=(660, 400))
 
 # ------ Event Loop ------
 while True:
