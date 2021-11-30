@@ -21,6 +21,12 @@ class Project:
         table = [[dic['start time'], dic['end time'], dic['work duration'], dic['description']] for dic in self.entries]
         return table
 
+    def calculate_hours(self):
+        hours = 0
+        for entry in self.entries:
+            hours += float(entry['work duration'])
+        self.total_time = hours
+
 
 def retrieve_data():
     with open('data.json') as file:
@@ -152,6 +158,7 @@ def add_entry():
                     "description": values['-DESCRIPTION-']
                 }
             )
+            project.calculate_hours()
 
     remake_window()
 
