@@ -17,6 +17,7 @@ class Project:
 
     def create_table(self):
         # print(dir(self))
+        print(self.entries)
         table = [[dic['start time'], dic['end time'], dic['work duration'], dic['description']] for dic in self.entries]
         return table
 
@@ -73,24 +74,36 @@ def create_row_of_cols():
         row.append(create_project_column(project, data['focused']))
     return row
 
-layout = [
-    [sg.Combo(projects, key='-COMBO_PROJECTS-', default_value=projects[0], readonly=True, size=(78,1), enable_events=True)],
-    create_row_of_cols(),
-    [sg.pin(sg.Button('Start', size=(5,1))), sg.pin(sg.Button('Stop', size=(5,1))),
-    sg.Input(key="-TIME_STARTED-", size=(12,1), default_text='time start', readonly=True),
-    sg.Input(key="-TIME_STOPPED-", size=(12,1), default_text='time stopped', readonly=True),
-    sg.Input(key="-WORK_DURATION-", size=(12,1), default_text='work duration', readonly=True),
-    sg.Input(key="-DESCRIPTION-", size=(20,1), default_text='description of work'),
-    sg.Button('Add', size=(9,1))
-    ],
-    [sg.Text(key='-OUTPUT-', text='not started', background_color='#ffffff', text_color='#696969', pad=((0,0),(5,0)), size=(80,1))]
-]
+def create_layout():
+    layout = [
+        [sg.Combo(projects, key='-COMBO_PROJECTS-', default_value=data['focused'], readonly=True, size=(78,1), enable_events=True)],
+        create_row_of_cols(),
+        [sg.pin(sg.Button('Start', size=(5,1))), sg.pin(sg.Button('Stop', size=(5,1))),
+        sg.Input(key="-TIME_STARTED-", size=(12,1), default_text='time start', readonly=True),
+        sg.Input(key="-TIME_STOPPED-", size=(12,1), default_text='time stopped', readonly=True),
+        sg.Input(key="-WORK_DURATION-", size=(12,1), default_text='work duration', readonly=True),
+        sg.Input(key="-DESCRIPTION-", size=(20,1), default_text='description of work'),
+        sg.Button('Add', size=(9,1))
+        ],
+        [sg.Text(key='-OUTPUT-', text='not started', background_color='#ffffff', text_color='#696969', pad=((0,0),(5,0)), size=(80,1))]
+    ]
+    return layout
 
 # ------ Create Window ------
-window = sg.Window('WorkHours', layout, finalize=True, icon=ICON, margins=(0,0))
-window['Stop'].update(visible=False)
-window['Add'].update(disabled=True)
+def create_window(location=(None, None)):
+    window = sg.Window('WorkHours', create_layout(), finalize=True, icon=ICON, margins=(0,0), location=location)
+    window['Stop'].update(visible=False)
+    window['Add'].update(disabled=True)
+    return window
 
+def remake_window():
+    global window
+    old_window = window
+    x, y = old_window.current_location()
+    old_window.close()
+    window = create_window((x, y-60))
+
+window = create_window()
 
 # ------ Functions ------
 def start_timer():
@@ -127,6 +140,20 @@ def stop_timer():
 def add_entry():
     window['Start'].update(disabled=False)
     window['Add'].update(disabled=True)
+    print(data['focused'])
+
+    for project in projects:
+        if data['focused'] == project.project_name:
+            project.entries.append(
+                {
+                    "start time": values['-TIME_STARTED-'],
+                    "end time": values['-TIME_STOPPED-'],
+                    "work duration": values['-WORK_DURATION-'],
+                    "description": values['-DESCRIPTION-']
+                }
+            )
+
+    remake_window()
 
     window['-TIME_STARTED-'].update('time started')
     window['-TIME_STOPPED-'].update('time stopped')
@@ -146,6 +173,9 @@ def change_focus():
     print(str(new_focus))
     for project in projects:
         window[f'-COL_{project.project_name}-'].update(visible=True if project == new_focus else False)
+    data['focused'] = str(new_focus)
+
+
 
 
 
@@ -168,6 +198,7 @@ while True:
 
     if event != '__TIMEOUT__':
         print(event, values)
+        print(data)
 
     if event == sg.WIN_CLOSED:
         break
