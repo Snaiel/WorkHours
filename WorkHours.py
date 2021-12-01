@@ -36,16 +36,13 @@ def retrieve_data():
 
 def retrieve_projects(project_order):
     projects = []
-    files = [f for f in listdir('./projects') if isfile(join('./projects', f))]
+    files = [f for f in listdir('./projects') if isfile(join('./projects', f)) and f != '.gitignore']
     for file in files:
         with open(f'./projects/{str(file)}') as json_file:
             json_data = json.load(json_file)
             json_data['project name'] = file.split('.')[0]
             # print(json_data)
             projects.append(Project(json_data))
-    
-    # for project in projects:
-    #     print(str(project))
         
     for order in project_order:
         projects.insert(project_order.index(order), projects.pop(projects.index([i for i in projects if str(i) == order][0])))
@@ -86,6 +83,7 @@ def create_layout():
     combo = list(projects)
     combo.append(f"{' '*74}more options..")
 
+    # Column that contains the main program. The table and the function row at the bottom for timing
     main_col = [
         create_row_of_cols(),
         [sg.pin(sg.Button('Start', size=(5,1))), sg.pin(sg.Button('Stop', size=(5,1))),
@@ -97,8 +95,18 @@ def create_layout():
         ]
     ]
 
+    more_options_col_project_form = [
+        [sg.Input(key='-INPUT_PROJECT_NAME-',size=(21,1), default_text='project name')],
+        [sg.Multiline(k='-INPUT_PROJECT_DESCRIPTION-', size=(20,8), default_text='project description')],
+        [sg.Button('add project', size=(19,1))]
+    ]
+
+    projects_listbox = [str(i) for i in projects]
+    add_project_spacing = 8
+    projects_listbox.insert(0, ' '*add_project_spacing+'add new project')
+
     more_options_col = [
-        [sg.Column([[sg.Listbox(projects, k='-LISTBOX_PROJECTS-', size=(20,11))]]), sg.Column([[sg.Input(key='-INPUT_PROJECT_NAME-', size=(21,1), default_text='project name')],[sg.Multiline(k='-INPUT_PROJECT_DESCRIPTION-', size=(20,8), default_text='project description')],[sg.Button('add project', size=(19,1))]], vertical_alignment='top')]
+        [sg.Column([[sg.Listbox(projects_listbox, k='-LISTBOX_PROJECTS-', size=(20,11), enable_events=True, select_mode=sg.SELECT_MODE_SINGLE)]]), sg.Column(more_options_col_project_form, vertical_alignment='top')]
     ]
 
     combo_default_spacing = 74 if data['focused'] not in data['project order'] else 0
@@ -234,6 +242,18 @@ def save():
         with open(f'./projects/{str(project)}.json', 'w') as project_file:
             json.dump(project_data, project_file, indent=4)
 
+def change_listbox_project_view():
+    if values['-LISTBOX_PROJECTS-'][0].strip() == 'add new project':
+        window['-INPUT_PROJECT_NAME-'].update('project name')
+        window['-INPUT_PROJECT_DESCRIPTION-'].update('project description')
+        window['add project'].update(disabled=False)
+    else:
+        for project in projects:
+            if values['-LISTBOX_PROJECTS-'][0] == str(project):
+                window['-INPUT_PROJECT_NAME-'].update(project.project_name)
+                window['-INPUT_PROJECT_DESCRIPTION-'].update(project.project_description)
+                window['add project'].update(disabled=True)
+
 
 
 switch_case_dict = {
@@ -241,7 +261,8 @@ switch_case_dict = {
     'Stop': stop_timer,
     'Add': add_entry,
     '-COMBO_PROJECTS-': change_focus,
-    'add project': add_project
+    'add project': add_project,
+    '-LISTBOX_PROJECTS-': change_listbox_project_view
 }
 
 timer_started = False
