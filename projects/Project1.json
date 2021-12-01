@@ -1,6 +1,6 @@
 {
-    "project description": "This is a test project for the WorkHours app",
-    "total time": 0.056,
+    "project_description": "This is a test project for the WorkHours app",
+    "total_time": 0.056,
     "entries": [
         {
             "start time": "16:22:46  29/11/2021",

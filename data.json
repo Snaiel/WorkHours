@@ -1,4 +1,7 @@
 {
-    "project order": ["Project1", "Side Project"],
-    "focused": "Project1"
+    "project order": [
+        "Project1",
+        "Side Project"
+    ],
+    "focused": "more options.."
 }

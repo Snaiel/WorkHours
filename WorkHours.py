@@ -101,8 +101,10 @@ def create_layout():
         [sg.Column([[sg.Listbox(projects, k='-LISTBOX_PROJECTS-', size=(20,11))]]), sg.Column([[sg.Input(key='-INPUT_PROJECT_NAME-', size=(21,1), default_text='project name')],[sg.Multiline(k='-INPUT_PROJECT_DESCRIPTION-', size=(20,8), default_text='project description')],[sg.Button('add project', size=(19,1))]], vertical_alignment='top')]
     ]
 
+    combo_default_spacing = 74 if data['focused'] not in data['project order'] else 0
+
     layout = [
-        [sg.Combo(combo, key='-COMBO_PROJECTS-', default_value=data['focused'], readonly=True, size=(78,1), enable_events=True)],
+        [sg.Combo(combo, key='-COMBO_PROJECTS-', default_value=' '*combo_default_spacing+data['focused'], readonly=True, size=(78,1), enable_events=True)],
         [sg.Column(main_col, key='-COL_MAIN-', pad=(0,0)), sg.Column(more_options_col, key='-COL_MORE_OPTIONS-', pad=(0,0), size=(600,350), expand_x=True)],
         [sg.Text(key='-OUTPUT-', text='not started', background_color='#ffffff', text_color='#696969', pad=((0,0),(5,0)), size=(80,1))]
     ]
@@ -123,6 +125,7 @@ def create_window(location=(None, None)):
     return window
 
 def remake_window():
+    save()
     global window
     old_window = window
     x, y = old_window.current_location()
@@ -215,13 +218,21 @@ def add_project():
         "entries": []
     }
     projects.append(Project(project_data))
-    # combo = list(projects)
-    # combo.append(f"{' '*74}more options..")
-    # window['-COMBO_PROJECTS-'].update(combo)
-    # window['-LISTBOX_PROJECTS-'].update(projects)
+    data['project order'].append(project_data['project name'])
     remake_window()
 
-
+def save():
+    with open('./data.json', 'w') as data_file:
+        if data['focused'] not in data['project order']:
+            data['focused'] = data['focused'].strip()
+        json.dump(data, data_file, indent=4)
+    for project in projects:
+        project_data = dict(vars(project))
+        print(project_data)
+        project_data.pop('project_name')
+        print(vars(project))
+        with open(f'./projects/{str(project)}.json', 'w') as project_file:
+            json.dump(project_data, project_file, indent=4)
 
 
 
@@ -253,4 +264,5 @@ while True:
     if event in switch_case_dict:
         switch_case_dict[event]()
 
+save()
 window.close()

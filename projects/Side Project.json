@@ -1,6 +1,6 @@
 {
-    "project description": "This is another project for example purposes.",
-    "total time": 0.125,
+    "project_description": "This is another project for example purposes.",
+    "total_time": 0.125,
     "entries": [
         {
             "start time": "17:12:47  29/11/2021",
