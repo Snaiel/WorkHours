@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import PySimpleGUI as sg
 from datetime import datetime
 import json
@@ -63,7 +63,7 @@ HEADINGS = ['Start', 'End', 'Total', 'Description']
 
 def create_project_column(project, focused_col):
     layout = [
-        [sg.Column(layout=[[sg.Multiline(default_text=project.project_description, size=(55,2), disabled=True)]], pad=(0,0)), sg.Column(layout=[[sg.Multiline(default_text=f"total time:\n{project.total_time} hours", size=(21,2), disabled=True)]], pad=(0,0))],
+        [sg.Column(layout=[[sg.Multiline(default_text=project.project_description, size=(55,2), disabled=True)]], pad=(0,0)), sg.Column(layout=[[sg.Multiline(key=f'-MULTI_{project.project_name}_TOTAL_TIME-', default_text=f"total time:\n{project.total_time} hours", size=(21,2), disabled=True)]], pad=(0,0))],
         [sg.Table(values=project.create_table(),
                     key = f'-TABLE_{project.project_name}-',
                     headings=HEADINGS,
@@ -197,6 +197,7 @@ def add_entry():
             )
             project.calculate_hours()
             window[f"-TABLE_{data['focused']}-"].update(project.create_table())
+            window[f'-MULTI_{project.project_name}_TOTAL_TIME-'].update(f"total time:\n{project.total_time} hours")
             break
 
     # remake_window()
