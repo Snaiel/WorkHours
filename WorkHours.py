@@ -46,8 +46,8 @@ def retrieve_projects(project_order):
     for file in files:
         with open(f'./projects/{str(file)}') as json_file:
             json_data = json.load(json_file)
-            json_data['project name'] = file.split('.')[0]
-            # print(json_data)
+            json_data['project_name'] = file.split('.')[0]
+            json_data['total_time'] = round(json_data['total_time'], 3)
             projects.append(Project(json_data))
         
     for order in project_order:
@@ -196,8 +196,10 @@ def add_entry():
                 }
             )
             project.calculate_hours()
+            window[f"-TABLE_{data['focused']}-"].update(project.create_table())
+            break
 
-    remake_window()
+    # remake_window()
 
     window['-TIME_STARTED-'].update('time started')
     window['-TIME_STOPPED-'].update('time stopped')
