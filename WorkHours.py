@@ -31,8 +31,14 @@ class Project:
 
 
 def retrieve_data():
-    with open('data.json') as file:
-        return json.load(file)
+    if isfile('data.json'):
+        with open('data.json') as file:
+            return json.load(file)
+    else:
+        return {
+            'project order': [],
+            'focused': ''
+        }
 
 def retrieve_projects(project_order):
     projects = []
@@ -230,17 +236,20 @@ def add_project():
     remake_window()
 
 def save():
+    project_order = []
+    for project in projects:
+        project_data = dict(vars(project))
+        # print(project_data)
+        # project_data.pop('project_name')
+        project_order.append(project_data.pop('project_name'))
+        # print(vars(project))
+        with open(f'./projects/{str(project)}.json', 'w') as project_file:
+            json.dump(project_data, project_file, indent=4)
+    data['project order'] = project_order
     with open('./data.json', 'w') as data_file:
         if data['focused'] not in data['project order']:
             data['focused'] = data['focused'].strip()
         json.dump(data, data_file, indent=4)
-    for project in projects:
-        project_data = dict(vars(project))
-        print(project_data)
-        project_data.pop('project_name')
-        print(vars(project))
-        with open(f'./projects/{str(project)}.json', 'w') as project_file:
-            json.dump(project_data, project_file, indent=4)
 
 def change_listbox_project_view():
     if values['-LISTBOX_PROJECTS-'][0].strip() == 'add new project':
